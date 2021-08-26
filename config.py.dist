@@ -1,0 +1,4 @@
+# config.py file example
+# you need to copy it without .dist and put your bot token
+
+TOKEN = "1235436547:sodjgmuihiugtiuhHFIDUSHSDFH"
