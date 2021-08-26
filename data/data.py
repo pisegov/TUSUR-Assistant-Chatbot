@@ -1,5 +1,5 @@
 from data.model.Direction import Direction
-from utils import Parser
+from utils.Parser import Parser
 
 parser = Parser()
 
