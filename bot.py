@@ -1,19 +1,17 @@
-import config
-import logging
-
-from aiogram import Bot, Dispatcher, executor, types
-
-logging.basicConfig(level=logging.INFO)
-
-bot = Bot(token=config.TOKEN)
-dp = Dispatcher(bot)
+from aiogram import executor
+from utils.set_bot_commands import set_default_commands
+from handlers.users import dp
+from loader import bot, storage
 
 
-# echo
-@dp.message_handler()
-async def echo(message: types.Message):
-    await message.answer(message.text)
+async def on_startup(dispatcher):
+    await set_default_commands(dispatcher)
+
+
+async def on_shutdown(dispatcher):
+    await bot.close()
+    await storage.close()
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=False)
+    executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=False)
