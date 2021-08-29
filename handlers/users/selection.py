@@ -13,22 +13,18 @@ dp.filters_factory.bind(IsRightDirection)
 
 
 @dp.message_handler(Command("select"), state=None)
-async def show_menu(message: Message):
-    facultiesKeyboard = KeyboardCreator.createKeyboard(facultiesTitles, 1)
+async def showMenu(message: Message):
+    keyboard = KeyboardCreator.createKeyboard(facultiesTitles, 1)
     await message.answer("Выберете факультет",
-                         reply_markup=facultiesKeyboard)
+                         reply_markup=keyboard)
     await SelectionStates.Q1_direction.set()
 
 
 @dp.message_handler(Text(equals=facultiesTitles, ignore_case=True), state=SelectionStates.Q1_direction)
 async def getFacultyChoice(message: Message, state=FSMContext):
 
-    currentFacultyDirectionsTitles = []
     faculty = getItemByTitle(message.text, facultiesList)
-    if faculty != 0:
-        currentFacultyDirectionsTitles = faculty.getDirectionsTitles()
-
-    keyboard = KeyboardCreator.createKeyboard(currentFacultyDirectionsTitles, 1)
+    keyboard = KeyboardCreator.createKeyboard(faculty.getDirectionsTitles(), 1)
     await message.answer(f"Выберете направление", reply_markup=keyboard)
 
     await state.update_data(selectedFaculty=faculty)
@@ -36,25 +32,42 @@ async def getFacultyChoice(message: Message, state=FSMContext):
     await SelectionStates.Q2_output.set()
 
 
-@dp.message_handler(Text(equals=directionsTitles), state=SelectionStates.Q2_output)
-async def getDirectionChoice(message: Message, state=FSMContext):
+@dp.message_handler(state=SelectionStates.Q1_direction)
+async def getWrongFacultyChoice(message: Message, state=FSMContext):
+    keyboard = KeyboardCreator.createKeyboard(facultiesTitles, 1)
+    await message.answer("К сожалению, я не нашел такого факультета :(\n"
+                         "Попробуйте еще раз",
+                         reply_markup=keyboard)
+
+
+@dp.message_handler(is_right_direction=True, state=SelectionStates.Q2_output)
+async def getRightDirectionChoice(message: Message, state=FSMContext):
     data = await state.get_data()
-    faculty = data.get("selectedFaculty")
-    direction = faculty.getDirectionByTitle(message.text)
-    if direction == 0:
-        direction = getItemByTitle(message.text, directionsList)
+    direction = data.get("selectedDirection")
 
-    if faculty.getDirectionsTitles().count(message.text) < 1:
-        await message.answer("Это направление с другого факультета, но я все равно вам его покажу :)",
-                             reply_markup=ReplyKeyboardRemove())
-
-    outputString = f"{message.text}:\n"
-    for profile in direction.profiles:
-        outputString += f"-{profile}\n"
-    outputString += f"Количество бюджетных мест: {direction.budget_places}\n"
-    if direction.passing_score != 0:
-        outputString += f"Проходной балл: {direction.passing_score}"
-
-    await message.answer(outputString, reply_markup=ReplyKeyboardRemove())
+    await message.answer(PostAdapter.makePost(direction), reply_markup=ReplyKeyboardRemove())
 
     await state.finish()
+
+
+@dp.message_handler(Text(equals=directionsTitles, ignore_case=True), state=SelectionStates.Q2_output)
+async def getExistingDirectionChoice(message: Message, state=FSMContext):
+
+    direction = getItemByTitle(message.text, directionsList)
+
+    await message.answer("Это направление с другого факультета, но я все равно вам его покажу :)",
+                         reply_markup=ReplyKeyboardRemove())
+
+    await message.answer(PostAdapter.makePost(direction), reply_markup=ReplyKeyboardRemove())
+
+    await state.finish()
+
+
+@dp.message_handler(state=SelectionStates.Q2_output)
+async def getWrongDirectionChoice(message: Message, state=FSMContext):
+    data = await state.get_data()
+    faculty = data.get("selectedFaculty")
+    keyboard = KeyboardCreator.createKeyboard(faculty.getDirectionsTitles(), 1)
+
+    await message.answer(f"К сожалению, я не нашел такого направления :(\n"
+                         "Попробуйте еще раз", reply_markup=keyboard)
