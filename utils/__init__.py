@@ -1,1 +1,1 @@
-
+from .PostAdapter import PostAdapter
