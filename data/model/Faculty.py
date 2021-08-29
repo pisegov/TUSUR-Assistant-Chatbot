@@ -7,8 +7,9 @@ class Faculty:
         self.directions = directions
 
     def getDirectionByTitle(self, dirTitle):
+        dirTitle = dirTitle.lower()
         for direction in self.directions:
-            if direction.title == dirTitle:
+            if direction.title.lower() == dirTitle:
                 return direction
         return 0
 

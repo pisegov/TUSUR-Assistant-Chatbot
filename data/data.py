@@ -16,7 +16,9 @@ for faculty in facultiesList:
 
 
 def getItemByTitle(title, container):
+    title = title.lower()
+
     for item in container:
-        if item.title == title:
+        if item.title.lower() == title:
             return item
     return 0

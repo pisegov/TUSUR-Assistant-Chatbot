@@ -20,7 +20,7 @@ async def show_menu(message: Message):
     await SelectionStates.Q1_direction.set()
 
 
-@dp.message_handler(Text(equals=facultiesTitles), state=SelectionStates.Q1_direction)
+@dp.message_handler(Text(equals=facultiesTitles, ignore_case=True), state=SelectionStates.Q1_direction)
 async def getFacultyChoice(message: Message, state=FSMContext):
 
     currentFacultyDirectionsTitles = []
