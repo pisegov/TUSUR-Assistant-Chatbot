@@ -6,6 +6,9 @@ from loader import dp
 from data import facultiesTitles, facultiesList, getItemByTitle, directionsTitles, directionsList
 from keyboards.KeyboardCreator import KeyboardCreator
 from states.SelectionStates import SelectionStates
+from filters import IsRightDirection
+
+dp.filters_factory.bind(IsRightDirection)
 
 
 @dp.message_handler(Command("select"), state=None)
