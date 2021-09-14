@@ -15,7 +15,7 @@ dp.filters_factory.bind(IsRightDirection)
 @dp.message_handler(Command("select"), state=None)
 async def showMenu(message: Message):
     keyboard = KeyboardCreator.createKeyboard(facultiesTitles, 1)
-    await message.answer("Выберете факультет",
+    await message.answer("Выберите факультет",
                          reply_markup=keyboard)
     await SelectionStates.Q1_direction.set()
 
@@ -25,7 +25,7 @@ async def getFacultyChoice(message: Message, state=FSMContext):
 
     faculty = getItemByTitle(message.text, facultiesList)
     keyboard = KeyboardCreator.createKeyboard(faculty.getDirectionsTitles(), 1)
-    await message.answer(f"Выберете направление", reply_markup=keyboard)
+    await message.answer("Выберите направление", reply_markup=keyboard)
 
     await state.update_data(selectedFaculty=faculty)
 
