@@ -8,12 +8,12 @@ class IsRightDirection(BoundFilter):
         self.dispatcher = dispatcher
         self.is_right_direction = is_right_direction
 
-    async def check(self, obj) -> bool:
+    async def check(self, message) -> bool:
 
-        state = self.dispatcher.current_state(chat=obj.chat.id, user=obj.from_user.id)
+        state = self.dispatcher.current_state(chat=message.chat.id, user=message.from_user.id)
         data = await state.get_data()
         faculty = data.get("selectedFaculty")
-        direction = faculty.getDirectionByTitle(obj.text)
+        direction = faculty.getDirectionByTitle(message.text)
         if not direction == 0:
             await state.update_data(selectedDirection=direction)
             return True
